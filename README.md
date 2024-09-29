@@ -1,2 +1,6 @@
-# SSN_Proyecto
-Este repositorio contiene el proyecto del curso de Simulación de Sistemas Naturales, II Semestre, 2024
+# Proyecto: Simulación de Terraformación
+
+## Integrantes
+- Ariana Alvarado Molina
+- María Paula Bolaños Apú
+- Marco Herrera González

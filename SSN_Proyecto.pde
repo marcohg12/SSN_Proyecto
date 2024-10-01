@@ -5,7 +5,6 @@
 //  María Paula Bolaños Apú
 //  Marco Herrera González
 
-
 import peasy.*;
 PeasyCam cam;
 SpaceBackground spaceBg;

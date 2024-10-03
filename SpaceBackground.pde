@@ -9,7 +9,7 @@ class SpaceBackground {
     for (int i = 0; i < numStars; i++) {
       float x = random(-width, width);
       float y = random(-height, height);
-      float z = random(-1000, 1000); 
+      float z = random(-500, 500); 
       stars[i] = new PVector(x, y, z);
     }
   }
@@ -23,7 +23,7 @@ class SpaceBackground {
     for (PVector star : stars) {
       pushMatrix();
       translate(star.x, star.y, star.z);  
-      ellipse(0, 0, 2, 2);  
+      ellipse(0, 0, 2, 2);
       popMatrix();
     }
   }

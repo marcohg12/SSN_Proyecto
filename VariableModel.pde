@@ -8,6 +8,7 @@ class VariableModel {
   float vegetationPerc;    // Número entre 0 y 100
   float waterPerc;         // Número entre 0 y 100
   float icePerc;           // Número entre 0 y 100
+  float algaePerc;         // Número entre 0 y 100
   
   // Variable de escala de tiempo
   int yearsPerSecond;      // Cantidad de años por segundo
@@ -28,7 +29,7 @@ class VariableModel {
   final int ATMOSPHERE_LAYERS = 5;
   
   public VariableModel(float avgTemperature, float distanceToTheSun, float oxigenPerc, float greenHouseEffect,
-                       float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond){
+                       float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond, float algaePerc){
     this.avgTemperature = avgTemperature;
     this.distanceToTheSun = distanceToTheSun;
     this.oxigenPerc = oxigenPerc;
@@ -37,31 +38,38 @@ class VariableModel {
     this.waterPerc = waterPerc;
     this.icePerc = icePerc;
     this.yearsPerSecond = yearsPerSecond;
+    this.algaePerc = algaePerc;
   }
   
   private float getGreenHouseEffect(){
+    if (greenHouseEffect == 0){
+      return 0;
+    }
     return ((2 * ATMOSPHERE_LAYERS - 2) - (ATMOSPHERE_LAYERS - 2) * greenHouseEffect) / 
            ((2 * ATMOSPHERE_LAYERS) - (ATMOSPHERE_LAYERS - 1) * greenHouseEffect);
   }
   
   private float getAlbedo(){
     
-    float emptyLandPerc = 100 - (vegetationPerc + waterPerc + icePerc);
+    float landPerc = 100 - (waterPerc + icePerc);
+    float emptyLandPerc = landPerc - (vegetationPerc * landPerc) / 100;
     
     float albedo = (WATER_ALBEDO * (waterPerc / 100)) 
                  + (ICE_ALBEDO * (icePerc / 100)) 
-                 + (VEGETATION_ALBEDO * (vegetationPerc / 100)) 
+                 + (VEGETATION_ALBEDO * ((landPerc - emptyLandPerc) / 100)) 
                  + (EMPTY_LAND_ALBEDO * (emptyLandPerc / 100));   
+    
     return albedo;
   }
   
   private float getSurfaceHeatCapacity(){
     
-    float emptyLandPerc = 100 - (vegetationPerc + waterPerc + icePerc);
+    float landPerc = 100 - (waterPerc + icePerc);
+    float emptyLandPerc = landPerc - (vegetationPerc * landPerc) / 100;
     
     float surfaceHeatCapacity = (WATER_HC * (waterPerc / 100)) 
                               + (ICE_HC * (icePerc / 100)) 
-                              + (VEGETATION_HC * (vegetationPerc / 100)) 
+                              + (VEGETATION_HC * ((landPerc - emptyLandPerc) / 100)) 
                               + (EMPTY_LAND_HC * (emptyLandPerc / 100));
          
     return surfaceHeatCapacity;
@@ -101,13 +109,59 @@ class VariableModel {
     float tempChange = (Pabs - Prad) * (3.154e7 * yearsPerSecond) / C;
     
     avgTemperature += tempChange;
+    
+    if (avgTemperature == Float.POSITIVE_INFINITY){
+      avgTemperature = 5000;
+    }
+    else if (avgTemperature == Float.NEGATIVE_INFINITY){
+      avgTemperature = 0;
+    }
+    
+    if (avgTemperature > 5000) { 
+      avgTemperature = 5000; 
+    }
+    else if (avgTemperature < 0) { 
+      avgTemperature = 0; 
+    }
+  }
+  
+  public void updateWaterPerc(float value){
+    
+    float change = value - waterPerc;
+    
+    if (change != 0){ 
+      
+      float emptyLandPerc = 100 - icePerc - waterPerc;
+      
+      if (icePerc + emptyLandPerc != 0){
+        icePerc -= change * (icePerc / (icePerc + emptyLandPerc));
+      }
+      
+      waterPerc = value;
+    }
+  }
+  
+  public void updateIcePerc(float value){
+    
+    float change = value - icePerc;
+    
+    if (change != 0){ 
+      
+      float emptyLandPerc = 100 - icePerc - waterPerc;
+      
+      if (waterPerc + emptyLandPerc != 0){
+        waterPerc -= change * (waterPerc / (waterPerc + emptyLandPerc));
+      }
+          
+      icePerc = value;
+    }
   }
   
   public void update(){
     
     updateAvgTemperature();
     
-    //System.out.println(avgTemperature);
+    System.out.println(avgTemperature);
   }
   
 }

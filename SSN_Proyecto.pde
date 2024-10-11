@@ -134,7 +134,9 @@ void setup() {
   
   spaceBg = new SpaceBackground(1500);  
   planet = new Planet(300);  
-  sun = new Sun(0, 0, -2700, 20);
+  sun = new Sun(0, 0, -3000, 35);
+  // mínimo -3000, 35
+  // máximo -3500, 3200
   displayControls = false;
 }
 
@@ -188,7 +190,10 @@ void draw() {
     variableModel.update();
   }
   
-  // Actualiza los valores en los controles
+  float distanceAU = distanceSlider.getValue();  
+  sun.updateDistance(distanceAU);
+  
+  // Actualiza los valores en los controles  
   temperatureSlider.setValue(variableModel.avgTemperature);
   icePercSlider.setValue(variableModel.icePerc);
   waterPercSlider.setValue(variableModel.waterPerc);

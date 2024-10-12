@@ -9,7 +9,6 @@
 
 import peasy.*;
 import controlP5.*;
-
 PeasyCam cam;
 SpaceBackground spaceBg;
 Planet planet;
@@ -40,7 +39,8 @@ void setup() {
   cam.setMaximumDistance(3000); 
   
   // Modelo de variables
-  variableModel = new VariableModel(255.0, 1.496e11, 0.0, 0.78, 100, 70, 2, 100, 0.0);
+  //avgTemperature, distanceToTheSun, oxigenPerc, greenHouseEffect, vegetationPerc, waterPerc, icePerc, yearsPerSecond, algaePerc
+  variableModel = new VariableModel(255.0, 1.496e11, 0.0, 0.78, 30, 30, 2, 100, 0.0);
   
   float initialAvgTemperature = variableModel.avgTemperature;
   float initialGreenHouseEffect = variableModel.greenHouseEffect;
@@ -192,6 +192,15 @@ void draw() {
   
   float distanceAU = distanceSlider.getValue();  
   sun.updateDistance(distanceAU);
+  
+  //float waterPerc = waterPercSlider.getValue() / 100.0;  
+  //planet.updateWaterTexture(waterPerc); 
+  
+  float waterPerc = waterPercSlider.getValue() / 100.0;  
+  float vegetationPerc = vegetationPercSlider.getValue() / 100.0;  
+  float icePerc = icePercSlider.getValue() / 100.0; 
+  float algaePerc = algaePercSlider.getValue() / 100.0; 
+  planet.updateTextures(waterPerc, vegetationPerc, icePerc, algaePerc); 
   
   // Actualiza los valores en los controles  
   temperatureSlider.setValue(variableModel.avgTemperature);

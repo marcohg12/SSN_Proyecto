@@ -92,6 +92,7 @@ class Planet {
     int totalPixels = baseImg.width * baseImg.height;
     float totalPerc = waterPerc + vegetationPerc + icePerc + algaePerc;
 
+
     for (int i = 0; i < totalPixels; i++) {
       color baseColor = baseImg.pixels[i];
       color waterColor = waterImg.pixels[i];
@@ -129,27 +130,40 @@ class Planet {
 
   // Método para actualizar la textura del planeta cuando cambian los porcentajes de agua, vegetación, hielo o algas
   void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+    float totalPerc = waterPerc + vegetationPerc + icePerc + algaePerc;
+
+    // Normaliza los porcentajes si la suma total excede 1.0
+    if (totalPerc > 1.0) {
+      waterPerc /= totalPerc;
+      vegetationPerc /= totalPerc;
+      icePerc /= totalPerc;
+      algaePerc /= totalPerc;
+    }
+
+    // Suma de todos los porcentajes
+    println("Suma agua + vegetación + hielo + algas: " + (waterPerc + vegetationPerc + icePerc + algaePerc) * 100 + "%");
+
     boolean waterChanged = abs(waterPerc - lastWaterPerc) > 0.05;
     boolean vegetationChanged = abs(vegetationPerc - lastVegetationPerc) > 0.05;
     boolean iceChanged = abs(icePerc - lastIcePerc) > 0.05;
     boolean algaeChanged = abs(algaePerc - lastAlgaePerc) > 0.05;
 
-    println("Suma de agua, vegetación, hielo y algas: " + (waterPerc + vegetationPerc + icePerc + algaePerc) * 100 + "%");
-    println("Agua: " + (waterPerc) * 100 + "%");
-    println("Vegetación: " + (vegetationPerc) * 100 + "%");
-    println("Hielo: " + (icePerc) * 100 + "%");
-    println("Algas: " + (algaePerc) * 100 + "%");
+    // Otros prints opcionales para ver los porcentajes individuales
+    println("Agua: " + waterPerc * 100 + "%");
+    println("Vegetación: " + vegetationPerc * 100 + "%");
+    println("Hielo: " + icePerc * 100 + "%");
+    println("Algas: " + algaePerc * 100 + "%");
 
-    // Si el agua, vegetación, hielo o algas cambiaron significativamente, actualizamos las texturas
     if (waterChanged || vegetationChanged || iceChanged || algaeChanged) {
       combinedTexture = createCombinedTexture(baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, waterPerc, vegetationPerc, icePerc, algaePerc);
-      globe.setTexture(combinedTexture);  // Asigna la nueva textura al planeta
-      lastWaterPerc = waterPerc;          // Guarda el nuevo porcentaje de agua
-      lastVegetationPerc = vegetationPerc; // Guarda el nuevo porcentaje de vegetación
-      lastIcePerc = icePerc;              // Guarda el nuevo porcentaje de hielo
-      lastAlgaePerc = algaePerc;          // Guarda el nuevo porcentaje de algas
+      globe.setTexture(combinedTexture);
+      lastWaterPerc = waterPerc;
+      lastVegetationPerc = vegetationPerc;
+      lastIcePerc = icePerc;
+      lastAlgaePerc = algaePerc;
     }
   }
+
 
   // Método para dibujar el planeta con la textura actual
   void display() {

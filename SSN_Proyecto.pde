@@ -40,7 +40,7 @@ void setup() {
   
   // Modelo de variables
   //avgTemperature, distanceToTheSun, oxigenPerc, greenHouseEffect, vegetationPerc, waterPerc, icePerc, yearsPerSecond, algaePerc
-  variableModel = new VariableModel(255.0, 1.496e11, 0.0, 0.78, 30, 30, 2, 100, 0.0);
+  variableModel = new VariableModel(255.0, 1.496e11, 0.0, 0.78, 0, 0, 0, 0, 0.0);
   
   float initialAvgTemperature = variableModel.avgTemperature;
   float initialGreenHouseEffect = variableModel.greenHouseEffect;

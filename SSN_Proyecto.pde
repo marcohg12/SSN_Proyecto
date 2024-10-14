@@ -158,11 +158,11 @@ void setGreenHouseEffect(float value) {
 }
 
 void setWaterPerc(float value) {
-  variableModel.updateWaterPerc(value);
+  variableModel.setWaterPerc(value);
 }
 
 void setIcePerc(float value) {
-  variableModel.updateIcePerc(value);
+  variableModel.setIcePerc(value);
 }
 
 void setOxigenPerc(float value) {

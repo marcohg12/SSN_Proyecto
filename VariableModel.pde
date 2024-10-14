@@ -27,6 +27,11 @@ class VariableModel {
   final float VEGETATION_HC = 1850.0;
   final float EARTH_MASS = 5.972e24;
   final int ATMOSPHERE_LAYERS = 5;
+  final float EARTH_AREA = 5.1e14;
+  final float ICE_LAYER_THICKNESS = 2500;  // En metros
+  final float ICE_DENSITY = 917;           // En kg por metro cúbrico
+  final float ICE_HEAT_FUSION = 335000;
+  final float SECONDS_IN_A_YEAR = 3.154e7;
   
   public VariableModel(float avgTemperature, float distanceToTheSun, float oxigenPerc, float greenHouseEffect,
                        float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond, float algaePerc){
@@ -106,7 +111,7 @@ class VariableModel {
     float Prad = getPrad();
     float C = getSurfaceHeatCapacity() * EARTH_MASS;
     
-    float tempChange = (Pabs - Prad) * (3.154e7 * yearsPerSecond) / C;
+    float tempChange = (Pabs - Prad) * (SECONDS_IN_A_YEAR * yearsPerSecond) / C;
     
     avgTemperature += tempChange;
     
@@ -125,7 +130,7 @@ class VariableModel {
     }
   }
   
-  public void updateWaterPerc(float value){
+  public void setWaterPerc(float value){
     
     float change = value - waterPerc;
     
@@ -141,7 +146,7 @@ class VariableModel {
     }
   }
   
-  public void updateIcePerc(float value){
+  public void setIcePerc(float value){
     
     float change = value - icePerc;
     
@@ -157,9 +162,50 @@ class VariableModel {
     }
   }
   
+  // Retorna la masa en kg
+  private float getIceMass(){
+    float iceArea = (icePerc / 100) * EARTH_AREA;
+    float iceVolume = iceArea * ICE_LAYER_THICKNESS;
+    return iceVolume * ICE_DENSITY;
+  }
+  
+  // Retorna la potencia en watts por segundo
+  private float kelvinToPower(float kelvin){
+    return kelvin * 1.38064878066852e-23;
+  }
+  
+  private void updateIcePerc(){
+    
+    // El porcentaje de hielo supone una capa con grosor
+    // de 2500 metros
+    if (avgTemperature >= 273.15){
+      
+      // El hielo comienza a derretirse a temperaturas mayores a 
+      // 0 grados celcius
+      float timeToMeltAllIce = (ICE_HEAT_FUSION / kelvinToPower(avgTemperature)) * getIceMass();
+      float timeStep = SECONDS_IN_A_YEAR * yearsPerSecond;
+      
+      System.out.println(getIceMass());
+      
+      if (timeStep >= timeToMeltAllIce){
+        waterPerc += icePerc;
+        icePerc = 0;
+      } else {
+        float percentageMelted = (((timeStep * 100) / timeToMeltAllIce) * 2) / 100;
+        //System.out.println(percentageMelted);
+        waterPerc += percentageMelted;
+        icePerc -= percentageMelted;
+      }
+      
+    }
+  }
+  
+  
   public void update(){
     
     updateAvgTemperature();
+    
+    //updateIcePerc();
     
     System.out.println(avgTemperature);
   }

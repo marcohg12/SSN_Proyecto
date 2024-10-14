@@ -38,16 +38,13 @@ class Sun {
   }
 
   void updateDistance(float distanceAU) {
-
-    this.position.z = map(distanceAU, 0, 2, -3500, -3000);
-
-    /*if (distanceAU == 1.0) {
-      this.radius = 2000;
-    } else {
-      this.radius = map(distanceAU, 0, 2, 3200, 35);
-    }*/
     
-    this.radius = map(distanceAU, 0, 2, 3200, 35);
-    //println("Distancia en AU: " + distanceAU + ", Posición Z: " + position.z + ", Radio: " + radius);
+    this.position.z = map(distanceAU, 0, 2, -3500, -3000);
+    
+    if (distanceAU >= 1.0){
+      this.radius = map(distanceAU, 1, 2, 200, 35);
+    } else {
+      this.radius = map(distanceAU, 0, 1, 3200, 200);
+    }
   }
 }

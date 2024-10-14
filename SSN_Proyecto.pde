@@ -71,7 +71,7 @@ void setup() {
   temperatureSlider = cp5.addSlider("setTemperatureValue") 
     .setPosition(10, 40)
     .setSize(200, 20)
-    .setRange(0.0, 5000.0)            
+    .setRange(0.0, 1000.0)            
     .setValue(initialAvgTemperature)
     .setLabel("Average Temperature")
     .hide();
@@ -127,7 +127,7 @@ void setup() {
   yearsPerSecondSlider = cp5.addSlider("setYearsPerSecond") 
     .setPosition(10, 250)
     .setSize(200, 20)
-    .setRange(0, 10000)            
+    .setRange(1, 10000)            
     .setValue(1)
     .setLabel("Years per second")
     .hide();
@@ -135,8 +135,6 @@ void setup() {
   spaceBg = new SpaceBackground(1500);  
   planet = new Planet(300);  
   sun = new Sun(0, 0, -3000, 35);
-  // mínimo -3000, 35
-  // máximo -3500, 3200
   displayControls = false;
 }
 
@@ -190,17 +188,9 @@ void draw() {
     variableModel.update();
   }
   
-  float distanceAU = distanceSlider.getValue();  
-  sun.updateDistance(distanceAU);
-  
-  //float waterPerc = waterPercSlider.getValue() / 100.0;  
-  //planet.updateWaterTexture(waterPerc); 
-  
-  float waterPerc = waterPercSlider.getValue() / 100.0;  
-  float vegetationPerc = vegetationPercSlider.getValue() / 100.0;  
-  float icePerc = icePercSlider.getValue() / 100.0; 
-  float algaePerc = algaePercSlider.getValue() / 100.0; 
-  planet.updateTextures(waterPerc, vegetationPerc, icePerc, algaePerc); 
+ 
+  sun.updateDistance(variableModel.distanceToTheSun / 1.496e11);
+  planet.updateTextures(variableModel.waterPerc / 100, variableModel.vegetationPerc / 100, variableModel.icePerc / 100, variableModel.algaePerc / 100); 
   
   // Actualiza los valores en los controles  
   temperatureSlider.setValue(variableModel.avgTemperature);

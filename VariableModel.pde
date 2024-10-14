@@ -17,7 +17,7 @@ class VariableModel {
   final float STEFAN_BOLTZMANN_CONST = 5.670374419e-8;
   final float SUN_LUMINOSITY = 3.838e26;
   final float WATER_ALBEDO = 0.25;
-  final float ICE_ALBEDO = 0.8;
+  final float ICE_ALBEDO = 0.75;
   final float VEGETATION_ALBEDO = 0.25;
   final float EMPTY_LAND_ALBEDO = 0.4;
   final float EARTH_RADIUS = 6.37101e6;
@@ -27,11 +27,10 @@ class VariableModel {
   final float VEGETATION_HC = 1850.0;
   final float EARTH_MASS = 5.972e24;
   final int ATMOSPHERE_LAYERS = 5;
-  final float EARTH_AREA = 5.1e14;
-  final float ICE_LAYER_THICKNESS = 2500;  // En metros
-  final float ICE_DENSITY = 917;           // En kg por metro cúbrico
-  final float ICE_HEAT_FUSION = 335000;
   final float SECONDS_IN_A_YEAR = 3.154e7;
+  final float DEPTH_OF_ICE_MELTED_PER_DAY = 0.005;
+  final float EARTH_WIND_AVG_VELOCITY = 33.05556;
+  final float MAX_AVG_TEMP = 1000.0;
   
   public VariableModel(float avgTemperature, float distanceToTheSun, float oxigenPerc, float greenHouseEffect,
                        float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond, float algaePerc){
@@ -116,14 +115,14 @@ class VariableModel {
     avgTemperature += tempChange;
     
     if (avgTemperature == Float.POSITIVE_INFINITY){
-      avgTemperature = 5000;
+      avgTemperature = MAX_AVG_TEMP;
     }
     else if (avgTemperature == Float.NEGATIVE_INFINITY){
       avgTemperature = 0;
     }
     
-    if (avgTemperature > 5000) { 
-      avgTemperature = 5000; 
+    if (avgTemperature > MAX_AVG_TEMP) { 
+      avgTemperature = MAX_AVG_TEMP; 
     }
     else if (avgTemperature < 0) { 
       avgTemperature = 0; 
@@ -162,16 +161,8 @@ class VariableModel {
     }
   }
   
-  // Retorna la masa en kg
-  private float getIceMass(){
-    float iceArea = (icePerc / 100) * EARTH_AREA;
-    float iceVolume = iceArea * ICE_LAYER_THICKNESS;
-    return iceVolume * ICE_DENSITY;
-  }
-  
-  // Retorna la potencia en watts por segundo
-  private float kelvinToPower(float kelvin){
-    return kelvin * 1.38064878066852e-23;
+  private float kelvinToCelcius(float kelvin){
+    return kelvin - 273.15;
   }
   
   private void updateIcePerc(){
@@ -180,23 +171,63 @@ class VariableModel {
     // de 2500 metros
     if (avgTemperature >= 273.15){
       
-      // El hielo comienza a derretirse a temperaturas mayores a 
-      // 0 grados celcius
-      float timeToMeltAllIce = (ICE_HEAT_FUSION / kelvinToPower(avgTemperature)) * getIceMass();
-      float timeStep = SECONDS_IN_A_YEAR * yearsPerSecond;
+      float depthOfIceMelted = (kelvinToCelcius(avgTemperature) * 365 * yearsPerSecond) * DEPTH_OF_ICE_MELTED_PER_DAY;
       
-      System.out.println(getIceMass());
-      
-      if (timeStep >= timeToMeltAllIce){
+      if (depthOfIceMelted >= 2500.0){
+        
         waterPerc += icePerc;
+        
+        if (waterPerc > 100.0){
+          waterPerc = 100;
+        }
+        
         icePerc = 0;
-      } else {
-        float percentageMelted = (((timeStep * 100) / timeToMeltAllIce) * 2) / 100;
-        //System.out.println(percentageMelted);
-        waterPerc += percentageMelted;
-        icePerc -= percentageMelted;
+        return;
       }
       
+      float percentageMelted = (depthOfIceMelted * 100) / 2500;
+      
+      float absolutePercentageMelted = (percentageMelted * icePerc) / 100;
+      
+      icePerc -= absolutePercentageMelted;
+      waterPerc += absolutePercentageMelted;
+      
+    }
+  }
+  
+  private void updateWaterPerc(){
+    
+    if (waterPerc > 0.0){
+      
+      float avgTempInCelcius = kelvinToCelcius(avgTemperature);
+      
+      float humidityRatio = 3.733e-3 + 3.2e-4 * avgTempInCelcius + 3e-6 * pow(avgTempInCelcius, 2) + 4e-7 * pow(avgTempInCelcius, 3);
+      
+      float water_surface_area = 5.10e14 * (waterPerc / 100); // Superficie en metros
+      
+      float evaporationCoeficient = 25 + (19 * 11.9);
+      
+      float massEvaporated = yearsPerSecond * 365 * 24 * (evaporationCoeficient * water_surface_area * humidityRatio);
+      
+      float currentMass = water_surface_area * 2500 * 1000; // Volumen en kg
+      
+      float percentageOfMassLoss = (massEvaporated * 100) / currentMass;
+      
+      float percentageLoss = (percentageOfMassLoss * waterPerc) / 100;
+      
+      if (avgTemperature >= 273.15){
+        
+        waterPerc -= percentageLoss;
+      
+        if (waterPerc < 0.0){
+          waterPerc = 0.0;
+        }
+      } else {
+        
+        waterPerc -= abs(percentageLoss);
+        icePerc += abs(percentageLoss);
+      }
+     
     }
   }
   
@@ -205,9 +236,11 @@ class VariableModel {
     
     updateAvgTemperature();
     
-    //updateIcePerc();
+    updateIcePerc();
     
-    System.out.println(avgTemperature);
+    updateWaterPerc();
+    
+    //System.out.println(avgTemperature);
   }
   
 }

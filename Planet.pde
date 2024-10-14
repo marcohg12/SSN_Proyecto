@@ -141,7 +141,7 @@ class Planet {
     }
 
     // Suma de todos los porcentajes
-    println("Suma agua + vegetación + hielo + algas: " + (waterPerc + vegetationPerc + icePerc + algaePerc) * 100 + "%");
+   // println("Suma agua + vegetación + hielo + algas: " + (waterPerc + vegetationPerc + icePerc + algaePerc) * 100 + "%");
 
     boolean waterChanged = abs(waterPerc - lastWaterPerc) > 0.05;
     boolean vegetationChanged = abs(vegetationPerc - lastVegetationPerc) > 0.05;
@@ -149,10 +149,10 @@ class Planet {
     boolean algaeChanged = abs(algaePerc - lastAlgaePerc) > 0.05;
 
     // Otros prints opcionales para ver los porcentajes individuales
-    println("Agua: " + waterPerc * 100 + "%");
-    println("Vegetación: " + vegetationPerc * 100 + "%");
-    println("Hielo: " + icePerc * 100 + "%");
-    println("Algas: " + algaePerc * 100 + "%");
+   // println("Agua: " + waterPerc * 100 + "%");
+    //println("Vegetación: " + vegetationPerc * 100 + "%");
+    //println("Hielo: " + icePerc * 100 + "%");
+    //println("Algas: " + algaePerc * 100 + "%");
 
     if (waterChanged || vegetationChanged || iceChanged || algaeChanged) {
       combinedTexture = createCombinedTexture(baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, waterPerc, vegetationPerc, icePerc, algaePerc);

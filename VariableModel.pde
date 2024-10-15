@@ -133,7 +133,7 @@ class VariableModel {
     
     float change = value - waterPerc;
     
-    if (change != 0){ 
+    if (change > 0){ 
       
       float emptyLandPerc = 100 - icePerc - waterPerc;
       
@@ -142,6 +142,9 @@ class VariableModel {
       }
       
       waterPerc = value;
+    } 
+    else {
+      waterPerc = value;
     }
   }
   
@@ -149,7 +152,7 @@ class VariableModel {
     
     float change = value - icePerc;
     
-    if (change != 0){ 
+    if (change > 0){ 
       
       float emptyLandPerc = 100 - icePerc - waterPerc;
       
@@ -157,6 +160,9 @@ class VariableModel {
         waterPerc -= change * (waterPerc / (waterPerc + emptyLandPerc));
       }
           
+      icePerc = value;
+    } 
+    else {
       icePerc = value;
     }
   }
@@ -169,7 +175,7 @@ class VariableModel {
     
     // El porcentaje de hielo supone una capa con grosor
     // de 2500 metros
-    if (avgTemperature >= 273.15){
+    if (avgTemperature >= 273.15 && icePerc > 0.0){
       
       float depthOfIceMelted = (kelvinToCelcius(avgTemperature) * 365 * yearsPerSecond) * DEPTH_OF_ICE_MELTED_PER_DAY;
       
@@ -215,22 +221,24 @@ class VariableModel {
       
       float percentageLoss = (percentageOfMassLoss * waterPerc) / 100;
       
-      if (avgTemperature >= 273.15){
+      if (avgTemperature >= 313.15){
         
+        // Evaporación del agua
         waterPerc -= percentageLoss;
       
         if (waterPerc < 0.0){
           waterPerc = 0.0;
         }
-      } else {
+      } 
+      else if (avgTemperature <= 273.15) {
         
+        // Congelamiento del agua
         waterPerc -= abs(percentageLoss);
         icePerc += abs(percentageLoss);
       }
      
     }
   }
-  
   
   public void update(){
     

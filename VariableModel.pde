@@ -26,11 +26,13 @@ class VariableModel {
   final float ICE_HC = 2000.0;
   final float VEGETATION_HC = 1850.0;
   final float EARTH_MASS = 5.972e24;
+  final float EARTH_SURFACE_AREA = 5.10e14;
   final int ATMOSPHERE_LAYERS = 5;
   final float SECONDS_IN_A_YEAR = 3.154e7;
   final float DEPTH_OF_ICE_MELTED_PER_DAY = 0.005;
   final float EARTH_WIND_AVG_VELOCITY = 33.05556;
   final float MAX_AVG_TEMP = 1000.0;
+  final float EARTH_O2_MOLES = 3.375e19;
   
   public VariableModel(float avgTemperature, float distanceToTheSun, float oxigenPerc, float greenHouseEffect,
                        float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond, float algaePerc){
@@ -46,9 +48,15 @@ class VariableModel {
   }
   
   private float getGreenHouseEffect(){
+    
     if (greenHouseEffect == 0){
       return 0;
     }
+    
+    if (greenHouseEffect >= 0.90){
+      return greenHouseEffect;
+    }
+    
     return ((2 * ATMOSPHERE_LAYERS - 2) - (ATMOSPHERE_LAYERS - 2) * greenHouseEffect) / 
            ((2 * ATMOSPHERE_LAYERS) - (ATMOSPHERE_LAYERS - 1) * greenHouseEffect);
   }
@@ -198,7 +206,15 @@ class VariableModel {
       icePerc -= absolutePercentageMelted;
       waterPerc += absolutePercentageMelted;
       
+      if (icePerc < 0.01){
+          icePerc = 0.0;
+      }
+      
     }
+  }
+  
+  private float getWaterSurfaceArea(){
+    return EARTH_SURFACE_AREA * (waterPerc / 100);
   }
   
   private void updateWaterPerc(){
@@ -209,13 +225,13 @@ class VariableModel {
       
       float humidityRatio = 3.733e-3 + 3.2e-4 * avgTempInCelcius + 3e-6 * pow(avgTempInCelcius, 2) + 4e-7 * pow(avgTempInCelcius, 3);
       
-      float water_surface_area = 5.10e14 * (waterPerc / 100); // Superficie en metros
+      float waterSurfaceArea = getWaterSurfaceArea(); // Superficie en metros
       
       float evaporationCoeficient = 25 + (19 * 11.9);
       
-      float massEvaporated = yearsPerSecond * 365 * 24 * (evaporationCoeficient * water_surface_area * humidityRatio);
+      float massEvaporated = yearsPerSecond * 365 * 24 * (evaporationCoeficient * waterSurfaceArea * humidityRatio);
       
-      float currentMass = water_surface_area * 2500 * 1000; // Volumen en kg
+      float currentMass = waterSurfaceArea * 2500 * 1000; // Volumen en kg
       
       float percentageOfMassLoss = (massEvaporated * 100) / currentMass;
       
@@ -226,7 +242,7 @@ class VariableModel {
         // Evaporación del agua
         waterPerc -= percentageLoss;
       
-        if (waterPerc < 0.0){
+        if (waterPerc < 0.01){
           waterPerc = 0.0;
         }
       } 
@@ -235,10 +251,88 @@ class VariableModel {
         // Congelamiento del agua
         waterPerc -= abs(percentageLoss);
         icePerc += abs(percentageLoss);
+        
+        if (waterPerc < 0.01) {
+          waterPerc = 0;
+        }
+        
+        if (icePerc > 100) {
+          icePerc = 100;
+        }
       }
      
     }
   }
+  
+  private void updateAlgaePerc(){
+    
+    // Si no hay agua, no hay crecimiento de algas
+    if (waterPerc == 0){
+      return;
+    } 
+    
+    float avgTempInCelcius = kelvinToCelcius(avgTemperature);
+    
+    if (getGreenHouseEffect() > 0 && (avgTempInCelcius >= 0 && avgTempInCelcius <= 40)){
+      
+      // Si hay CO2 disponible y las temperaturas son estables para el crecimiento, las algas crecen
+      
+      if (algaePerc ==  100){
+        return;
+      }
+      
+      float waterSurfaceArea = getWaterSurfaceArea();
+      float waterWithNoAlgae = waterSurfaceArea - (waterSurfaceArea * (algaePerc / 100));
+      
+      float greenHouseEffectBost = map(getGreenHouseEffect(), 0, 1, 0.01, 1);
+      float tempBost = map(avgTempInCelcius, 0, 40, 0.01, 1);
+      int newColonies = (int) random(100, 1000);
+      float scalingFactor = random(0, 1);
+      float prevColonies = ((waterSurfaceArea * (algaePerc / 100)) / 120);
+      
+      // Las algas cubren 30g (biomasa) por día
+      // Para cubrir un metro se necesitan 120g de biomasa
+      float metersCoveredInAYear = ((30 * 365 * greenHouseEffectBost * tempBost * newColonies) / 120) + 
+                                   ((30 * 365 * greenHouseEffectBost * tempBost * prevColonies) / 120);
+      
+      metersCoveredInAYear *= scalingFactor;
+      float metersCovered = metersCoveredInAYear * yearsPerSecond;
+      
+      float incrementPerc = (metersCovered / waterWithNoAlgae) * 100;
+      
+      algaePerc += incrementPerc;   
+      
+      if (algaePerc > 100){
+        algaePerc = 100;
+      }
+      
+    }
+    else {    
+      algaePerc = 0;
+    }
+  }
+  
+  private void updateOxigenPerc(){
+    
+    if (algaePerc == 0 && vegetationPerc == 0){
+      return;
+    }
+    
+    float waterSurfaceArea = getWaterSurfaceArea();
+    float algaeBiomass = (waterSurfaceArea * (algaePerc / 100)) * 120;
+    float scalingFactor = random(0, 1);
+    float o2MolesProduced = (yearsPerSecond * 365 * (24 * 0.00255 * algaeBiomass)) * scalingFactor;
+   
+    float incrementPerc = (o2MolesProduced * 100) / EARTH_O2_MOLES;
+    
+    oxigenPerc += incrementPerc;
+    
+    if (oxigenPerc > 100){
+      oxigenPerc = 100;
+    }
+  }
+  
+  private void updateVegetation(){}
   
   public void update(){
     
@@ -248,7 +342,9 @@ class VariableModel {
     
     updateWaterPerc();
     
-    //System.out.println(avgTemperature);
+    updateAlgaePerc();
+    
+    updateOxigenPerc();
   }
   
 }

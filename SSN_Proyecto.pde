@@ -196,10 +196,18 @@ void draw() {
   temperatureSlider.setValue(variableModel.avgTemperature);
   icePercSlider.setValue(variableModel.icePerc);
   waterPercSlider.setValue(variableModel.waterPerc);
-  vegetationPercSlider.setValue(variableModel.vegetationPerc);
-  algaePercSlider.setValue(variableModel.algaePerc);
-  oxigenPercSlider.setValue(variableModel.oxigenPerc);
+
+  vegetationPercSlider.setValue(variableModel.vegetationPerc); 
   greenHouseEffectSlider.setValue(variableModel.greenHouseEffect);
+  
+  if (variableModel.algaePerc >= 0.01 || variableModel.algaePerc == 0.0){
+    algaePercSlider.setValue(variableModel.algaePerc);  
+  }
+  
+  if (variableModel.oxigenPerc >= 0.01 || variableModel.oxigenPerc == 0.0){
+    oxigenPercSlider.setValue(variableModel.oxigenPerc);  
+  }
+  
   
   if (displayControls) {
     distanceSlider.show();

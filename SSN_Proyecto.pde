@@ -40,7 +40,8 @@ void setup() {
   
   // Modelo de variables
   //avgTemperature, distanceToTheSun, oxigenPerc, greenHouseEffect, vegetationPerc, waterPerc, icePerc, yearsPerSecond, algaePerc
-  variableModel = new VariableModel(255.0, 1.496e11, 0.0, 0.78, 0, 0, 0, 0, 0.0);
+  variableModel = new VariableModel();
+  variableModel.generatePlanetConfig();
   
   float initialAvgTemperature = variableModel.avgTemperature;
   float initialGreenHouseEffect = variableModel.greenHouseEffect;
@@ -197,7 +198,6 @@ void draw() {
   icePercSlider.setValue(variableModel.icePerc);
   waterPercSlider.setValue(variableModel.waterPerc);
 
-  vegetationPercSlider.setValue(variableModel.vegetationPerc); 
   greenHouseEffectSlider.setValue(variableModel.greenHouseEffect);
   
   if (variableModel.algaePerc >= 0.01 || variableModel.algaePerc == 0.0){
@@ -206,6 +206,10 @@ void draw() {
   
   if (variableModel.oxigenPerc >= 0.01 || variableModel.oxigenPerc == 0.0){
     oxigenPercSlider.setValue(variableModel.oxigenPerc);  
+  }
+  
+  if (variableModel.vegetationPerc >= 0.01 || variableModel.vegetationPerc == 0.0){
+    vegetationPercSlider.setValue(variableModel.vegetationPerc);  
   }
   
   

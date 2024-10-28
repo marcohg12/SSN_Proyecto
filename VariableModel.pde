@@ -34,17 +34,19 @@ class VariableModel {
   final float MAX_AVG_TEMP = 1000.0;
   final float EARTH_O2_MOLES = 3.375e19;
   
-  public VariableModel(float avgTemperature, float distanceToTheSun, float oxigenPerc, float greenHouseEffect,
-                       float vegetationPerc, float waterPerc, float icePerc, int yearsPerSecond, float algaePerc){
-    this.avgTemperature = avgTemperature;
-    this.distanceToTheSun = distanceToTheSun;
-    this.oxigenPerc = oxigenPerc;
-    this.greenHouseEffect = greenHouseEffect;
-    this.vegetationPerc = vegetationPerc;
-    this.waterPerc = waterPerc;
-    this.icePerc = icePerc;
-    this.yearsPerSecond = yearsPerSecond;
-    this.algaePerc = algaePerc;
+  public VariableModel(){
+    yearsPerSecond = 1;
+  }
+  
+  public void generatePlanetConfig(){
+    distanceToTheSun = random(0.7, 1.7) * 1.496e11;
+    avgTemperature = random(263, 313);
+    greenHouseEffect = random(0, 1);
+    icePerc = random(10, 50);
+    waterPerc = 0;
+    algaePerc = 0;
+    vegetationPerc = 0;
+    oxigenPerc = 0;
   }
   
   private float getGreenHouseEffect(){
@@ -266,8 +268,9 @@ class VariableModel {
   
   private void updateAlgaePerc(){
     
-    // Si no hay agua, no hay crecimiento de algas
+    // Si no hay agua, no hay crecimiento de algas y las que habían mueren
     if (waterPerc == 0){
+      algaePerc = 0;
       return;
     } 
     
@@ -332,7 +335,48 @@ class VariableModel {
     }
   }
   
-  private void updateVegetation(){}
+  private void updateVegetation(){
+    
+    float avgTempInCelcius = kelvinToCelcius(avgTemperature);
+    float waterSurfaceArea = getWaterSurfaceArea();
+    float landSurfaceArea = EARTH_SURFACE_AREA - waterSurfaceArea;
+    
+    if (landSurfaceArea > 0 && getGreenHouseEffect() > 0 && oxigenPerc > 21 && waterPerc > 0 && (avgTempInCelcius >= 0 && avgTempInCelcius <= 40)){
+      
+      // Un arbol de roble ocupa un área de 200 m2
+      // Los robles alcanzan la madurez aproximadamente a los 30 años
+      // Al alcanzar la madurez, producen entre 0 y 6 robles en un periodo de 30 años
+      // La vida usual de un roble es de 200 años
+     
+      float currentTrees = (landSurfaceArea * (vegetationPerc / 100)) / 200;
+      
+      if (currentTrees == 0){
+        currentTrees = 1.0;
+      }
+      
+      float reproductionCiclesPassed = yearsPerSecond / 30;
+      float deathCiclesPassed = yearsPerSecond / 200;
+      
+      currentTrees -= currentTrees * (deathCiclesPassed * random(0.001, 0.2));
+      
+      if (currentTrees <= 0){
+        currentTrees = 1.0;
+      }
+      
+      float scalingFactor = random(0, 1); 
+      float areaCoveredByGrowth = 200 * random(0, 7) * reproductionCiclesPassed * currentTrees * scalingFactor;
+      float incrementPerc = (areaCoveredByGrowth * 100) / landSurfaceArea;
+      
+      vegetationPerc += incrementPerc;
+      
+      if (vegetationPerc > 100){
+        vegetationPerc = 100;
+      }
+      
+    } else {
+      vegetationPerc = 0;
+    }
+  }
   
   public void update(){
     
@@ -345,6 +389,8 @@ class VariableModel {
     updateAlgaePerc();
     
     updateOxigenPerc();
+    
+    updateVegetation();
   }
   
 }

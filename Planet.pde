@@ -33,7 +33,7 @@ class Planet {
     y = 0;
     z = 0;
 
-    // Cargar las texturas base del planeta 
+    // Cargar las texturas base del planeta
     baseTexture = loadImage("images/planet_texture.jpg");
     waterTexture = loadImage("images/water_texture.jpg");
     vegetationTexture = loadImage("images/vegetation_texture.jpg");
@@ -94,25 +94,16 @@ class Planet {
   }
 
   // Método para combinar las texturas del planeta según los porcentajes de agua, vegetación, hielo y algas
-PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationImg, PImage iceImg, PImage algasImg, float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+  PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationImg, PImage iceImg, PImage algasImg, float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
     int width = baseImg.width;
     int height = baseImg.height;
 
-    // Redimensionar todas las imágenes al tamaño de la imagen base
-    if (waterImg.width != width || waterImg.height != height) {
-      waterImg.resize(width, height);
-    }
-    if (vegetationImg.width != width || vegetationImg.height != height) {
-      vegetationImg.resize(width, height);
-    }
-    if (iceImg.width != width || iceImg.height != height) {
-      iceImg.resize(width, height);
-    }
-    if (algasImg.width != width || algasImg.height != height) {
-      algasImg.resize(width, height);
-    }
+    waterImg.resize(width, height);
+    vegetationImg.resize(width, height);
+    iceImg.resize(width, height);
+    algasImg.resize(width, height);
 
-    initializeTerrainMap(width, height);  // Inicializar la matriz de terreno
+    initializeTerrainMap(width, height);
 
     PImage result = createImage(width, height, ARGB);
     baseImg.loadPixels();
@@ -124,6 +115,7 @@ PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationI
     noiseMap.loadPixels();
 
     int totalPixels = width * height;
+    float totalAlgaePerc = waterPerc * algaePerc;
 
     for (int i = 0; i < totalPixels; i++) {
       int x = i % width;
@@ -137,47 +129,112 @@ PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationI
 
       float noiseValue = red(noiseMap.pixels[i]) / 255.0;
 
-      // 1. Aplicar agua
-      if (noiseValue < waterPerc) {
-        result.pixels[i] = waterColor;
-        terrainMap[x][y] = WATER;  // Marcar el terreno como agua
+      // Si vegetación tiene prioridad
+      if (vegetationPerc > waterPerc) {
+        // 1. Aplicar vegetación en áreas vacías
+        if (noiseValue < vegetationPerc && terrainMap[x][y] == EMPTY) {
+          result.pixels[i] = vegetationColor;
+          terrainMap[x][y] = VEGETATION;
+        }
+        // 2. Aplicar agua solo en áreas sin vegetación, con margen de separación
+        else if (terrainMap[x][y] == EMPTY && noiseValue < (vegetationPerc + waterPerc)) {
+          if (!isNearVegetation(x, y, width, height)) {
+            result.pixels[i] = waterColor;
+            terrainMap[x][y] = WATER;
+          } else {
+            result.pixels[i] = baseColor;
+          }
+        }
       }
-      // 2. Aplicar hielo donde no haya agua
-      else if (terrainMap[x][y] == EMPTY && noiseValue < (waterPerc + icePerc)) {
+      // Si agua tiene prioridad
+      else {
+        // 1. Aplicar agua en áreas vacías
+        if (noiseValue < waterPerc && terrainMap[x][y] == EMPTY) {
+          result.pixels[i] = waterColor;
+          terrainMap[x][y] = WATER;
+        }
+        // 2. Aplicar vegetación solo en áreas sin agua, con margen de separación
+        else if (terrainMap[x][y] == EMPTY && noiseValue < (waterPerc + vegetationPerc)) {
+          if (!isNearWater(x, y, width, height)) {
+            result.pixels[i] = vegetationColor;
+            terrainMap[x][y] = VEGETATION;
+          } else {
+            result.pixels[i] = baseColor;
+          }
+        }
+      }
+
+      // 3. Aplicar hielo donde no haya agua, vegetación ni algas
+      if (terrainMap[x][y] == EMPTY && noiseValue < (vegetationPerc + waterPerc + icePerc)) {
         result.pixels[i] = iceColor;
-        terrainMap[x][y] = ICE;  // Marcar el terreno como hielo
+        terrainMap[x][y] = ICE;
       }
-      // 3. Aplicar vegetación donde no haya agua ni hielo
-      else if (terrainMap[x][y] == EMPTY && noiseValue < (waterPerc + icePerc + vegetationPerc)) {
-        result.pixels[i] = vegetationColor;
-        terrainMap[x][y] = VEGETATION;  // Marcar el terreno como vegetación
-      }
-      // 4. Aplicar algas solo donde no hay agua ni hielo
-      else if (terrainMap[x][y] == EMPTY && noiseValue < (waterPerc + icePerc + vegetationPerc + algaePerc)) {
+
+      // 4. Aplicar algas a la par del agua, en áreas vacías
+      if (terrainMap[x][y] == WATER && noiseValue < totalAlgaePerc) {
         result.pixels[i] = algasColor;
         terrainMap[x][y] = ALGAE;  // Marcar el terreno como algas
       }
+
       // 5. Si no hay texturas aplicadas, usar la textura base
-      else {
+      if (terrainMap[x][y] == EMPTY) {
         result.pixels[i] = baseColor;
       }
     }
 
     result.updatePixels();
     return result;
-}
+  }
 
+  // Método auxiliar para verificar si hay agua cerca de una posición
+  boolean isNearWater(int x, int y, int width, int height) {
+    for (int offsetX = -1; offsetX <= 1; offsetX++) {
+      for (int offsetY = -1; offsetY <= 1; offsetY++) {
+        int neighborX = x + offsetX;
+        int neighborY = y + offsetY;
+        if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
+          if (terrainMap[neighborX][neighborY] == WATER) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 
+  // Método auxiliar para verificar si hay vegetación cerca de una posición
+  boolean isNearVegetation(int x, int y, int width, int height) {
+    for (int offsetX = -1; offsetX <= 1; offsetX++) {
+      for (int offsetY = -1; offsetY <= 1; offsetY++) {
+        int neighborX = x + offsetX;
+        int neighborY = y + offsetY;
+        if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
+          if (terrainMap[neighborX][neighborY] == VEGETATION) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
 
   // Método para actualizar la textura del planeta cuando cambian los porcentajes de agua, vegetación, hielo o algas
   void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
     // Suma de todos los porcentajes
-    println("Suma agua + vegetación + hielo + algas: " + (waterPerc + vegetationPerc + icePerc + algaePerc) * 100 + "%");
+    println("Suma agua + vegetación + hielo : " + (waterPerc + vegetationPerc + icePerc) * 100 + "%");
 
+    // Verifica si el porcentaje de agua ha cambiado más de un 5% desde el último valor guardado
     boolean waterChanged = abs(waterPerc - lastWaterPerc) > 0.05;
+
+    // Verifica si el porcentaje de vegetación ha cambiado más de un 5% desde el último valor guardado
     boolean vegetationChanged = abs(vegetationPerc - lastVegetationPerc) > 0.05;
+
+    // Verifica si el porcentaje de hielo ha cambiado más de un 5% desde el último valor guardado
     boolean iceChanged = abs(icePerc - lastIcePerc) > 0.05;
+
+    // Verifica si el porcentaje de algas ha cambiado más de un 5% desde el último valor guardado
     boolean algaeChanged = abs(algaePerc - lastAlgaePerc) > 0.05;
+
 
     // Porcentajes individuales
     println("Agua: " + waterPerc * 100 + "%");

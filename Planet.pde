@@ -1,31 +1,21 @@
 class Planet {
   // Radio del planeta
-  float radius;
+  private float radius;
 
   // Coordenadas del planeta en el espacio 3D
-  float x, y, z;
+  private float x, y, z;
 
   // Forma del planeta (una esfera)
-  PShape globe;
+  private PShape globe;
 
   // Imágenes para las texturas base, de agua, vegetación, hielo, algas y combinadas
-  PImage baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, combinedTexture, noiseMap;
+  private PImage baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, combinedTexture, noiseMap;
 
   // Últimos porcentajes aplicados para el agua, vegetación, hielo y algas
-  float lastWaterPerc;
-  float lastVegetationPerc;
-  float lastIcePerc;
-  float lastAlgaePerc;
-
-  // Matriz que tendrá el tipo de terreno en cada píxel
-  int[][] terrainMap;
-
-  // Constantes para los tipos de terreno
-  final int EMPTY = 0; //Tierra
-  final int WATER = 1;
-  final int ICE = 2;
-  final int VEGETATION = 3;
-  final int ALGAE = 4;
+  private float lastWaterPerc;
+  private float lastVegetationPerc;
+  private float lastIcePerc;
+  private float lastAlgaePerc;
 
   Planet(float radius) {
     this.radius = radius;
@@ -66,7 +56,7 @@ class Planet {
   }
 
   // Método para crear un mapa de ruido que ayuda a decidir dónde colocar el agua, vegetación, hielo y algas
-  PImage createNoiseMap(int width, int height) {
+  private PImage createNoiseMap(int width, int height) {
     PImage noiseImg = createImage(width, height, ARGB);
     noiseImg.loadPixels();
 
@@ -81,20 +71,13 @@ class Planet {
     return noiseImg;
   }
 
-  // Inicializar la matriz de terreno
-  void initializeTerrainMap(int width, int height) {
-    terrainMap = new int[width][height];
-
-    // Inicializar toda la matriz con el valor EMPTY (tierra)
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        terrainMap[x][y] = EMPTY;  // Tierra vacía por defecto
-      }
-    }
-  }
-
   // Método para combinar las texturas del planeta según los porcentajes de agua, vegetación, hielo y algas
+<<<<<<< HEAD
   PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationImg, PImage iceImg, PImage algasImg, float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+=======
+  private PImage createCombinedTexture(PImage baseImg, PImage waterImg, PImage vegetationImg, PImage iceImg, PImage algasImg, float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+  
+>>>>>>> 9fe3b8b76cbd63476da9dcc6b9da269c8b298711
     int width = baseImg.width;
     int height = baseImg.height;
 
@@ -103,8 +86,11 @@ class Planet {
     iceImg.resize(width, height);
     algasImg.resize(width, height);
 
+<<<<<<< HEAD
     initializeTerrainMap(width, height);
 
+=======
+>>>>>>> 9fe3b8b76cbd63476da9dcc6b9da269c8b298711
     PImage result = createImage(width, height, ARGB);
     baseImg.loadPixels();
     waterImg.loadPixels();
@@ -118,16 +104,15 @@ class Planet {
     float totalAlgaePerc = waterPerc * algaePerc;
 
     for (int i = 0; i < totalPixels; i++) {
-      int x = i % width;
-      int y = i / width;
 
       color baseColor = baseImg.pixels[i];
       color waterColor = waterImg.pixels[i];
       color vegetationColor = vegetationImg.pixels[i];
       color iceColor = iceImg.pixels[i];
-      color algasColor = algasImg.pixels[i];
+      color algaeColor = algasImg.pixels[i];
 
       float noiseValue = red(noiseMap.pixels[i]) / 255.0;
+<<<<<<< HEAD
 
       // Si vegetación tiene prioridad
       if (vegetationPerc > waterPerc) {
@@ -179,6 +164,28 @@ class Planet {
       // 5. Si no hay texturas aplicadas, usar la textura base
       if (terrainMap[x][y] == EMPTY) {
         result.pixels[i] = baseColor;
+=======
+      
+      if (noiseValue < waterPerc) {
+        
+        if (noiseValue < algaePerc * waterPerc) {
+          result.pixels[i] = algaeColor;
+        } else {
+          result.pixels[i] = waterColor;
+        }
+        
+      } 
+      else if (noiseValue < (waterPerc + icePerc)) {
+        result.pixels[i] = iceColor;
+      } 
+      else {
+
+        if (noiseValue < vegetationPerc * (1 - waterPerc - icePerc)) {
+          result.pixels[i] = vegetationColor;
+        } else {
+          result.pixels[i] = baseColor;
+        }
+>>>>>>> 9fe3b8b76cbd63476da9dcc6b9da269c8b298711
       }
     }
 
@@ -219,6 +226,7 @@ class Planet {
   }
 
   // Método para actualizar la textura del planeta cuando cambian los porcentajes de agua, vegetación, hielo o algas
+<<<<<<< HEAD
   void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
     // Suma de todos los porcentajes
     println("Suma agua + vegetación + hielo : " + (waterPerc + vegetationPerc + icePerc) * 100 + "%");
@@ -241,10 +249,20 @@ class Planet {
     println("Vegetación: " + vegetationPerc * 100 + "%");
     println("Hielo: " + icePerc * 100 + "%");
     println("Algas: " + algaePerc * 100 + "%");
+=======
+  public void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+
+    boolean waterChanged = abs(waterPerc - lastWaterPerc) != 0;
+    boolean vegetationChanged = abs(vegetationPerc - lastVegetationPerc) != 0;
+    boolean iceChanged = abs(icePerc - lastIcePerc) != 0;
+    boolean algaeChanged = abs(algaePerc - lastAlgaePerc) != 0;
+
+>>>>>>> 9fe3b8b76cbd63476da9dcc6b9da269c8b298711
 
     if (waterChanged || vegetationChanged || iceChanged || algaeChanged) {
       combinedTexture = createCombinedTexture(baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, waterPerc, vegetationPerc, icePerc, algaePerc);
       globe.setTexture(combinedTexture);
+      //combinedTexture.save("textura_guardada.jpg");
       lastWaterPerc = waterPerc;
       lastVegetationPerc = vegetationPerc;
       lastIcePerc = icePerc;
@@ -253,7 +271,7 @@ class Planet {
   }
 
   // Método para dibujar el planeta con la textura actual
-  void display() {
+  public void display() {
     pushMatrix();
     translate(x, y, z);
     shape(globe);

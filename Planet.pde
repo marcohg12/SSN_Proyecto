@@ -7,6 +7,9 @@ class Planet {
 
   // Forma del planeta (una esfera)
   PShape globe;
+  
+  // Niveles de auras
+  float oxigenLevel, greenHELevel, tempLevel;
 
   // Imágenes para las texturas base, de agua, vegetación, hielo, algas y combinadas
   PImage baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, combinedTexture, noiseMap;
@@ -219,7 +222,11 @@ class Planet {
   }
 
   // Método para actualizar la textura del planeta cuando cambian los porcentajes de agua, vegetación, hielo o algas
-  void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc) {
+  void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc, float greenHEPerc, float oxigenPerc, float tempPerc) {
+    greenHELevel = greenHEPerc;
+    oxigenLevel = oxigenPerc;
+    tempLevel = tempPerc;
+    updateAuras();
     // Suma de todos los porcentajes
     println("Suma agua + vegetación + hielo : " + (waterPerc + vegetationPerc + icePerc) * 100 + "%");
 
@@ -250,6 +257,30 @@ class Planet {
       lastIcePerc = icePerc;
       lastAlgaePerc = algaePerc;
     }
+  }
+  
+  // Método para actualizar las auras que representan la temperatura, oxigeno y efecto invernadero
+  void updateAuras() {
+    float temp = map(tempLevel, 0, 1, 0, 50); 
+    fill(255, 0, 0, temp); 
+    
+    pushMatrix();
+    sphere(radius * 1.03); 
+    popMatrix();
+    
+    float greenHouse = map(greenHELevel, 0, 1, 5, 50); 
+    fill(200, 200, 200, greenHouse); 
+    
+    pushMatrix();
+    sphere(radius * 1.1); 
+    popMatrix();
+    
+    float oxigen = map(oxigenLevel, 0, 1, 5, 50);  
+    fill(255, 255, 255, oxigen);  
+
+    pushMatrix();
+    sphere(radius * 1.2); 
+    popMatrix();
   }
 
   // Método para dibujar el planeta con la textura actual

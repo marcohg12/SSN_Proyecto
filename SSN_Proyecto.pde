@@ -191,7 +191,7 @@ void draw() {
   
  
   sun.updateDistance(variableModel.distanceToTheSun / 1.496e11);
-  planet.updateTextures(variableModel.waterPerc / 100, variableModel.vegetationPerc / 100, variableModel.icePerc / 100, variableModel.algaePerc / 100); 
+  planet.updateTextures(variableModel.waterPerc / 100, variableModel.vegetationPerc / 100, variableModel.icePerc / 100, variableModel.algaePerc / 100, variableModel.greenHouseEffect, variableModel.oxigenPerc / 100, variableModel.avgTemperature / 1000); 
   
   // Actualiza los valores en los controles  
   temperatureSlider.setValue(variableModel.avgTemperature);

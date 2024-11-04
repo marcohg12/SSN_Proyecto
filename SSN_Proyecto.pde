@@ -189,7 +189,6 @@ void draw() {
     variableModel.update();
   }
   
- 
   sun.updateDistance(variableModel.distanceToTheSun / 1.496e11);
   planet.updateTextures(variableModel.waterPerc / 100, variableModel.vegetationPerc / 100, variableModel.icePerc / 100, variableModel.algaePerc / 100, variableModel.greenHouseEffect, variableModel.oxigenPerc / 100, variableModel.avgTemperature / 1000); 
   
@@ -197,7 +196,6 @@ void draw() {
   temperatureSlider.setValue(variableModel.avgTemperature);
   icePercSlider.setValue(variableModel.icePerc);
   waterPercSlider.setValue(variableModel.waterPerc);
-
   greenHouseEffectSlider.setValue(variableModel.greenHouseEffect);
   
   if (variableModel.algaePerc >= 0.01 || variableModel.algaePerc == 0.0){
@@ -211,7 +209,6 @@ void draw() {
   if (variableModel.vegetationPerc >= 0.01 || variableModel.vegetationPerc == 0.0){
     vegetationPercSlider.setValue(variableModel.vegetationPerc);  
   }
-  
   
   if (displayControls) {
     distanceSlider.show();

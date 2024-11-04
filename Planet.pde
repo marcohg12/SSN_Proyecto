@@ -60,8 +60,8 @@ class Planet {
     combinedTexture = createCombinedTexture(baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, 0.0, 0.0, 0.0, 0.0);
 
     // Inicializa los porcentajes de terreno
-    lastWaterPerc = 0.5;
-    lastVegetationPerc = 0.5;
+    lastWaterPerc = 0.01;
+    lastVegetationPerc = 0.01;
     lastIcePerc = 0.0;
     lastAlgaePerc = 0.0;
 
@@ -196,6 +196,7 @@ class Planet {
 
   // Método para actualizar la textura del planeta cuando cambian los porcentajes de agua, vegetación, hielo o algas
   void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc, float greenHEPerc, float oxigenPerc, float tempPerc) {
+    
     // Actualiza los niveles de aura
     greenHELevel = greenHEPerc;
     oxigenLevel = oxigenPerc;
@@ -220,12 +221,11 @@ class Planet {
     float adjustedIcePerc = min(icePerc * availableSurface, availableSurface);
     availableSurface -= adjustedIcePerc; // Actualizamos el espacio restante después de aplicar hielo
 
-
-    println("Agua aplicada: " + adjustedWaterPerc * 100 + "%");
-    println("Vegetación aplicada: " + adjustedVegetationPerc * 100 + "%");
-    println("Hielo aplicado: " + adjustedIcePerc * 100 + "%");
-    println("Algas: " + algaePerc * 100 + "% (sin cambios)");
-    println("Espacio libre restante available: " + availableSurface * 100 + "%");
+    //println("Agua aplicada: " + adjustedWaterPerc * 100 + "%");
+    //println("Vegetación aplicada: " + adjustedVegetationPerc * 100 + "%");
+    //println("Hielo aplicado: " + adjustedIcePerc * 100 + "%");
+    //println("Algas: " + algaePerc * 100 + "% (sin cambios)");
+    //println("Espacio libre restante available: " + availableSurface * 100 + "%");
 
     // Verifica si alguno de los valores ha cambiado
     boolean waterChanged = abs(adjustedWaterPerc - lastWaterPerc) > 0.001;

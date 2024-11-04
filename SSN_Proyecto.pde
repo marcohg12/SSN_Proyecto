@@ -43,7 +43,7 @@ void setup() {
   variableModel = new VariableModel();
   variableModel.generatePlanetConfig();
   
-  float initialAvgTemperature = variableModel.avgTemperature;
+  float initialAvgTemperature = variableModel.avgTemperature - 273.15;
   float initialGreenHouseEffect = variableModel.greenHouseEffect;
   float initialDistanceToTheSun = variableModel.distanceToTheSun / 1.496e11;
   float initialWaterPerc = variableModel.waterPerc;
@@ -72,9 +72,9 @@ void setup() {
   temperatureSlider = cp5.addSlider("setTemperatureValue") 
     .setPosition(10, 40)
     .setSize(200, 20)
-    .setRange(0.0, 1000.0)            
+    .setRange(-273.15, 726.85)            
     .setValue(initialAvgTemperature)
-    .setLabel("Average Temperature")
+    .setLabel("Average Temperature (C)")
     .hide();
   
   greenHouseEffectSlider = cp5.addSlider("setGreenHouseEffect") 
@@ -147,7 +147,7 @@ void setDistanceValue(float value) {
 }
 
 void setTemperatureValue(float value) {
-  variableModel.avgTemperature = value;
+  variableModel.avgTemperature = value + 273.15;
 }
 
 void setYearsPerSecond(int value) {
@@ -193,7 +193,7 @@ void draw() {
   planet.updateTextures(variableModel.waterPerc / 100, variableModel.vegetationPerc / 100, variableModel.icePerc / 100, variableModel.algaePerc / 100, variableModel.greenHouseEffect, variableModel.oxigenPerc / 100, variableModel.avgTemperature / 1000); 
   
   // Actualiza los valores en los controles  
-  temperatureSlider.setValue(variableModel.avgTemperature);
+  temperatureSlider.setValue(variableModel.avgTemperature - 273.15);
   icePercSlider.setValue(variableModel.icePerc);
   waterPercSlider.setValue(variableModel.waterPerc);
   greenHouseEffectSlider.setValue(variableModel.greenHouseEffect);

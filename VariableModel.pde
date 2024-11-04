@@ -18,11 +18,11 @@ class VariableModel {
   final float SUN_LUMINOSITY = 3.838e26;
   final float WATER_ALBEDO = 0.45;
   final float ICE_ALBEDO = 0.75;
-  final float VEGETATION_ALBEDO = 0.3;
+  final float VEGETATION_ALBEDO = 0.35;
   final float EMPTY_LAND_ALBEDO = 0.4;
   final float EARTH_RADIUS = 6.37101e6;
   final float EMPTY_LAND_HC = 2250.0;
-  final float WATER_HC = 4180.0;
+  final float WATER_HC = 4000.0;
   final float ICE_HC = 2000.0;
   final float VEGETATION_HC = 1850.0;
   final float EARTH_MASS = 5.972e24;

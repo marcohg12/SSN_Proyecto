@@ -207,16 +207,16 @@ class Planet {
     // Si waterPerc es mayor que el espacio disponible, se limita al espacio restante.
     float adjustedWaterPerc = min(waterPerc, availableSurface);
     availableSurface -= adjustedWaterPerc; // Actualizamos el espacio restante después de aplicar agua
+    
+    // Ajusta el porcentaje de hielo según el espacio restante después de agua y vegetación.
+    // Nos aseguramos que el hielo solo ocupe el espacio que queda disponible.
+    float adjustedIcePerc = min(icePerc, availableSurface);
+    availableSurface -= adjustedIcePerc; // Actualizamos el espacio restante después de aplicar hielo
 
     // Ajusta el porcentaje de vegetación según el espacio que queda después del agua.
     // Multiplicamos vegetationPerc por el espacio restante para que solo ocupe lo que queda disponible.
     float adjustedVegetationPerc = min(vegetationPerc * availableSurface, availableSurface);
     availableSurface -= adjustedVegetationPerc; // Actualizamos el espacio restante después de aplicar vegetación
-
-    // Ajusta el porcentaje de hielo según el espacio restante después de agua y vegetación.
-    // Nos aseguramos que el hielo solo ocupe el espacio que queda disponible.
-    float adjustedIcePerc = min(icePerc * availableSurface, availableSurface);
-    availableSurface -= adjustedIcePerc; // Actualizamos el espacio restante después de aplicar hielo
 
     //println("Agua aplicada: " + adjustedWaterPerc * 100 + "%");
     //println("Vegetación aplicada: " + adjustedVegetationPerc * 100 + "%");

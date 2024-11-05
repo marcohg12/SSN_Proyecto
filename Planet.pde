@@ -11,7 +11,7 @@ class Planet {
   PShape globe;
 
   // Niveles de auras
-  float oxigenLevel, greenHELevel, tempLevel;
+  float oxigenLevel, greenHELevel, tempLevel, greenHouse, temp, oxigen;
 
   // Imágenes para las texturas base, de agua, vegetación, hielo, algas y combinadas
   PImage baseTexture, waterTexture, vegetationTexture, iceTexture, algaeTexture, combinedTexture, noiseMap;
@@ -198,10 +198,7 @@ class Planet {
   void updateTextures(float waterPerc, float vegetationPerc, float icePerc, float algaePerc, float greenHEPerc, float oxigenPerc, float tempPerc) {
     
     // Actualiza los niveles de aura
-    greenHELevel = greenHEPerc;
-    oxigenLevel = oxigenPerc;
-    tempLevel = tempPerc;
-    updateAuras();
+    updateAuras(greenHEPerc, oxigenPerc, tempPerc);
 
     // Espacio total disponible al inicio (100% del planeta)
     float availableSurface = 1.0;
@@ -252,24 +249,31 @@ class Planet {
   }
 
   // Método para actualizar las auras que representan la temperatura, oxigeno y efecto invernadero
-  void updateAuras() {
-    float temp = map(tempLevel, 0, 1, 0, 50);
+  void updateAuras(float greenHEPerc, float oxigenPerc, float tempPerc) {
+    if(tempPerc != tempLevel){
+      tempLevel = tempPerc;  
+      temp = map(tempLevel, 0, 1, 0, 50);
+    }
     fill(255, 0, 0, temp);
-
     pushMatrix();
     sphere(radius * 1.03);
     popMatrix();
-
-    float greenHouse = map(greenHELevel, 0, 1, 5, 50);
+    
+    if( greenHEPerc != greenHELevel){
+      greenHELevel = greenHEPerc;
+      greenHouse = map(greenHELevel, 0, 1, 5, 50);
+    }
     fill(200, 200, 200, greenHouse);
-
     pushMatrix();
     sphere(radius * 1.1);
     popMatrix();
-
-    float oxigen = map(oxigenLevel, 0, 1, 5, 50);
+    
+    
+    if(oxigenPerc != oxigenLevel){
+      oxigenLevel = oxigenPerc;
+      oxigen = map(oxigenLevel, 0, 1, 5, 50);
+    }
     fill(255, 255, 255, oxigen);
-
     pushMatrix();
     sphere(radius * 1.2);
     popMatrix();

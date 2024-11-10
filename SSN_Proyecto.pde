@@ -28,7 +28,8 @@ Slider yearsPerSecondSlider;
 
 void setup() {
   
-  size(1300, 800, P3D);  
+  //size(1300, 800, P3D);  
+  fullScreen(P3D);
   
   // Configuración de distancia de renderizado
   perspective(PI / 3.0, (float)width / (float)height, 0.1, 10000);
@@ -52,82 +53,88 @@ void setup() {
   float initialAlgaePerc = variableModel.algaePerc;
   float initialOxigenPerc = variableModel.oxigenPerc;
   
+  
+  // Configuración de tipografía
+  PFont pfont = createFont("Arial", 20, true);
+  ControlFont font = new ControlFont(pfont, 20);
+  
   // Configuración de controles
   cp5 = new ControlP5(this);
   cp5.setAutoDraw(false);
+  cp5.setFont(font);
   
   cp5.addButton("togglePause")
-    .setPosition(10, 760)
-    .setSize(100, 30)
+    .setPosition(10, 1000)
+    .setSize(200, 50)
     .setLabel("Variable's panel");
   
   distanceSlider = cp5.addSlider("setDistanceValue") 
     .setPosition(10, 10)
-    .setSize(200, 20)
+    .setSize(300, 40)
     .setRange(0.0, 2.0)  
     .setValue(initialDistanceToTheSun)
     .setLabel("Distance to the Sun (AU)")
     .hide();
   
   temperatureSlider = cp5.addSlider("setTemperatureValue") 
-    .setPosition(10, 40)
-    .setSize(200, 20)
+    .setPosition(10, 70)
+    .setSize(300, 40)
     .setRange(-273.15, 726.85)            
     .setValue(initialAvgTemperature)
     .setLabel("Average Temperature (C)")
     .hide();
   
   greenHouseEffectSlider = cp5.addSlider("setGreenHouseEffect") 
-    .setPosition(10, 70)
-    .setSize(200, 20)
+    .setPosition(10, 130)
+    .setSize(300, 40)
     .setRange(0.0, 1.0)            
     .setValue(initialGreenHouseEffect)
     .setLabel("Greenhouse effect")
     .hide();
  
  waterPercSlider = cp5.addSlider("setWaterPerc") 
-    .setPosition(10, 100)
-    .setSize(200, 20)
+    .setPosition(10, 190)
+    .setSize(300, 40)
     .setRange(0.0, 100.0)            
     .setValue(initialWaterPerc)
     .setLabel("Water %")
     .hide();
   
   icePercSlider = cp5.addSlider("setIcePerc") 
-    .setPosition(10, 130)
-    .setSize(200, 20)
+    .setPosition(10, 250)
+    .setSize(300, 40)
     .setRange(0.0, 100.0)            
     .setValue(initialIcePerc)
     .setLabel("Ice %")
     .hide();
   
   oxigenPercSlider = cp5.addSlider("setOxigenPerc") 
-    .setPosition(10, 160)
-    .setSize(200, 20)
+    .setPosition(10, 310)
+    .setSize(300, 40)
     .setRange(0.0, 100.0)            
     .setValue(initialOxigenPerc)
     .setLabel("Oxigen %")
     .hide();
   
   vegetationPercSlider = cp5.addSlider("setVegetationPerc") 
-    .setPosition(10, 190)
-    .setSize(200, 20)
+    .setPosition(10, 370)
+    .setSize(300, 40)
     .setRange(0.0, 100.0)            
     .setValue(initialVegetationPerc)
     .setLabel("Vegetation %")
     .hide();
   
   algaePercSlider = cp5.addSlider("setAlgaePerc") 
-    .setPosition(10, 220)
-    .setSize(200, 20)
+    .setPosition(10, 430)
+    .setSize(300, 40)
     .setRange(0.0, 100.0)            
     .setValue(initialAlgaePerc)
     .setLabel("Algae %")
     .hide();
     
   yearsPerSecondSlider = cp5.addSlider("setYearsPerSecond") 
-    .setPosition(10, 250)
-    .setSize(200, 20)
+    .setPosition(10, 490)
+    .setSize(300, 40)
     .setRange(1, 10000)            
     .setValue(1)
     .setLabel("Years per second")
